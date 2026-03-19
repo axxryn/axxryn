@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Axxryn — Full Stack Developer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b0f;
+    --bg2: #0d1117;
+    --bg3: #111820;
+    --neon: #00ffe0;
+    --neon2: #00bfff;
+    --neon3: #7fff00;
+    --dim: #1e2d3d;
+    --muted: #4a6070;
+    --text: #ccd6e0;
+    --white: #f0f8ff;
+    --mono: 'Space Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.7;
+    cursor: none;
+    overflow-x: hidden;
+  }
+
+  /* CUSTOM CURSOR */
+  #cursor {
+    position: fixed;
+    width: 12px; height: 12px;
+    background: var(--neon);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.08s, width 0.2s, height 0.2s, opacity 0.2s;
+    mix-blend-mode: screen;
+  }
+  #cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--neon);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.18s ease, width 0.25s, height 0.25s;
+    opacity: 0.4;
+  }
+
+  /* SCANLINE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,255,224,0.012) 2px,
+      rgba(0,255,224,0.012) 4px
+    );
+    pointer-events: none;
+    z-index: 9990;
+  }
+
+  /* NOISE TEXTURE */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9989;
+    opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 48px;
+    background: linear-gradient(to bottom, rgba(8,11,15,0.98), transparent);
+    backdrop-filter: blur(2px);
+  }
+
+  .nav-logo {
+    font-family: var(--display);
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: -0.02em;
+  }
+  .nav-logo span { color: var(--neon); }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--neon); }
+
+  /* HERO */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 0 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,224,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,224,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+  }
+
+  .hero-glow {
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,255,224,0.06) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--neon);
+    margin-bottom: 28px;
+    border: 1px solid rgba(0,255,224,0.2);
+    padding: 6px 14px;
+    border-radius: 2px;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero-tag::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--neon);
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  h1.hero-name {
+    font-family: var(--display);
+    font-size: clamp(4rem, 10vw, 9rem);
+    font-weight: 800;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    color: var(--white);
+    margin-bottom: 12px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  h1.hero-name .neon { color: var(--neon); }
+
+  .hero-title {
+    font-family: var(--display);
+    font-size: clamp(1rem, 2.5vw, 1.6rem);
+    font-weight: 400;
+    color: var(--muted);
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .hero-desc {
+    max-width: 520px;
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.9;
+    margin-bottom: 48px;
+    animation: fadeUp 0.6s 0.3s ease both;
+    opacity: 0.85;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: none;
+    transition: all 0.25s;
+  }
+  .btn-primary {
+    background: var(--neon);
+    color: var(--bg);
+    font-weight: 700;
+  }
+  .btn-primary:hover {
+    background: transparent;
+    color: var(--neon);
+    outline: 1.5px solid var(--neon);
+    box-shadow: 0 0 24px rgba(0,255,224,0.25);
+  }
+  .btn-ghost {
+    border: 1px solid var(--dim);
+    color: var(--muted);
+  }
+  .btn-ghost:hover {
+    border-color: var(--neon);
+    color: var(--neon);
+  }
+
+  .hero-stats {
+    position: absolute;
+    right: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    animation: fadeUp 0.6s 0.5s ease both;
+  }
+  .stat {
+    text-align: right;
+  }
+  .stat-num {
+    font-family: var(--display);
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1;
+  }
+  .stat-num span { color: var(--neon); }
+  .stat-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 100px 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--neon);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--dim), transparent);
+    max-width: 80px;
+  }
+
+  .section-title {
+    font-family: var(--display);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: -0.03em;
+    margin-bottom: 60px;
+    line-height: 1.05;
+  }
+
+  /* PROJECTS */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+
+  .project-card {
+    background: var(--bg2);
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+    cursor: none;
+  }
+  .project-card:hover { background: var(--bg3); }
+  .project-card:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .project-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 2px;
+    height: 0;
+    background: var(--neon);
+    transition: height 0.4s ease;
+  }
+  .project-card:hover::before { height: 100%; }
+
+  .project-num {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  .project-title {
+    font-family: var(--display);
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--white);
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .project-card:first-child .project-title { font-size: 2.2rem; }
+
+  .project-desc {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.8;
+    margin-bottom: 24px;
+    max-width: 560px;
+  }
+
+  .project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+  .tag {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--neon);
+    border: 1px solid rgba(0,255,224,0.2);
+    padding: 4px 10px;
+  }
+
+  .project-highlight {
+    font-size: 12px;
+    color: var(--text);
+    opacity: 0.7;
+    font-style: italic;
+  }
+
+  /* OFFER BANNER */
+  .offer-banner {
+    background: linear-gradient(135deg, rgba(0,255,224,0.06), rgba(0,191,255,0.04));
+    border: 1px solid rgba(0,255,224,0.2);
+    border-left: 3px solid var(--neon);
+    padding: 32px 40px;
+    margin: 60px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .offer-banner::after {
+    content: 'OPEN OFFER';
+    position: absolute;
+    top: 20px; right: 24px;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--neon);
+    opacity: 0.4;
+  }
+  .offer-title {
+    font-family: var(--display);
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--white);
+    margin-bottom: 10px;
+  }
+  .offer-title span { color: var(--neon); }
+  .offer-desc {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.8;
+    max-width: 620px;
+  }
+  .offer-terms {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .offer-term {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text);
+  }
+  .offer-term::before {
+    content: '✓';
+    color: var(--neon);
+    font-weight: 700;
+  }
+
+  /* SKILLS */
+  .skills-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+  }
+
+  .skill-group-title {
+    font-family: var(--display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 20px;
+    letter-spacing: -0.01em;
+  }
+
+  .skill-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .skill-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .skill-name {
+    font-size: 12px;
+    color: var(--text);
+    min-width: 160px;
+  }
+  .skill-bar {
+    flex: 1;
+    height: 2px;
+    background: var(--dim);
+    position: relative;
+    overflow: hidden;
+  }
+  .skill-fill {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    background: linear-gradient(to right, var(--neon), var(--neon2));
+    width: 0;
+    transition: width 1s ease;
+  }
+  .skill-item:hover .skill-fill { filter: brightness(1.3); }
+
+  .soft-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .soft-tag {
+    padding: 8px 16px;
+    border: 1px solid var(--dim);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+    transition: all 0.2s;
+  }
+  .soft-tag:hover {
+    border-color: var(--neon);
+    color: var(--neon);
+  }
+
+  /* ABOUT */
+  .about-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 80px;
+    align-items: start;
+  }
+
+  .about-block {
+    margin-bottom: 40px;
+  }
+  .about-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--neon);
+    margin-bottom: 10px;
+  }
+  .about-value {
+    font-family: var(--display);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+  .about-sub {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .quote-block {
+    border-left: 2px solid var(--neon);
+    padding: 24px 28px;
+    background: var(--bg2);
+    margin-top: 40px;
+  }
+  .quote-text {
+    font-family: var(--display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+  }
+  .quote-attr {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 12px;
+    letter-spacing: 0.08em;
+  }
+
+  .languages-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .lang-chip {
+    padding: 8px 20px;
+    background: var(--bg3);
+    border: 1px solid var(--dim);
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 120px;
+  }
+  .lang-name { color: var(--white); font-weight: 700; }
+  .lang-level { color: var(--muted); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* STORY */
+  .story-card {
+    background: var(--bg2);
+    padding: 48px;
+    border-top: 2px solid var(--neon);
+    position: relative;
+  }
+  .story-card::before {
+    content: '"';
+    position: absolute;
+    top: -20px; left: 48px;
+    font-family: var(--display);
+    font-size: 6rem;
+    color: var(--neon);
+    opacity: 0.15;
+    line-height: 1;
+  }
+  .story-text {
+    font-size: 15px;
+    line-height: 2;
+    color: var(--text);
+    max-width: 680px;
+  }
+
+  /* CONTACT */
+  #contact {
+    text-align: center;
+  }
+  #contact .section-title { margin-bottom: 16px; }
+  .contact-sub {
+    color: var(--muted);
+    margin-bottom: 48px;
+    font-size: 13px;
+  }
+  .contact-links {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 32px;
+    border: 1px solid var(--dim);
+    color: var(--text);
+    text-decoration: none;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: all 0.25s;
+    cursor: none;
+  }
+  .contact-link:hover {
+    border-color: var(--neon);
+    color: var(--neon);
+    background: rgba(0,255,224,0.04);
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--dim);
+    padding: 32px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+
+  .footer-logo {
+    font-family: var(--display);
+    font-weight: 800;
+    color: var(--white);
+    font-size: 1rem;
+  }
+  .footer-logo span { color: var(--neon); }
+
+  /* DIVIDER */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--dim), transparent);
+    margin: 0 48px;
+    width: calc(100% - 96px);
+  }
+
+  /* SCROLL REVEAL */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* GLITCH */
+  .glitch {
+    position: relative;
+  }
+  .glitch::before, .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+  }
+  .glitch::before {
+    color: var(--neon2);
+    animation: glitch1 4s infinite;
+    clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+  }
+  .glitch::after {
+    color: #ff003c;
+    animation: glitch2 4s infinite;
+    clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+  }
+  @keyframes glitch1 {
+    0%, 95%, 100% { transform: none; opacity: 0; }
+    96% { transform: translateX(-3px); opacity: 0.7; }
+    97% { transform: translateX(3px); opacity: 0.5; }
+    98% { transform: translateX(-1px); opacity: 0; }
+  }
+  @keyframes glitch2 {
+    0%, 93%, 100% { transform: none; opacity: 0; }
+    94% { transform: translateX(3px); opacity: 0.6; }
+    95% { transform: translateX(-2px); opacity: 0.4; }
+    96% { transform: none; opacity: 0; }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav { padding: 20px 24px; }
+    .nav-links { display: none; }
+    #hero { padding: 80px 24px 48px; }
+    .hero-stats { display: none; }
+    section { padding: 64px 24px; }
+    .projects-grid { grid-template-columns: 1fr; }
+    .project-card:first-child { grid-column: 1; }
+    .skills-layout { grid-template-columns: 1fr; }
+    .about-layout { grid-template-columns: 1fr; gap: 40px; }
+    footer { flex-direction: column; gap: 16px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Axx<span>ryn</span></div>
+  <ul class="nav-links">
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero" style="max-width:100%; padding-left:48px; padding-right:48px;">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+
+  <div class="hero-content">
+    <div class="hero-tag">Available for collabs & plugin dev</div>
+    <h1 class="hero-name glitch" data-text="Axxryn">Axx<span class="neon">ryn</span></h1>
+    <p class="hero-title">Full Stack Developer &amp; Game Systems Designer</p>
+    <p class="hero-desc">
+      15-year-old developer based in the UK. I build systems most people my age don't even attempt — 
+      from complex SMP mechanics and custom plugins to complete digital experiences. 
+      Driven by curiosity, built on consistency.
+    </p>
+    <div class="hero-cta">
+      <a href="#projects" class="btn btn-primary">View Projects</a>
+      <a href="#contact" class="btn btn-ghost">Get in Touch</a>
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">15<span>.</span></div>
+      <div class="stat-label">Years Old</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num"><span>#</span>1</div>
+      <div class="stat-label">Passion: Building</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">UK<span>.</span></div>
+      <div class="stat-label">Remote Ready</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-label reveal">Featured Work</div>
+  <h2 class="section-title reveal">Projects that <em style="font-style:italic; color:var(--neon)">actually</em> ship.</h2>
+
+  <div class="projects-grid reveal">
+
+    <!-- FEATURED PROJECT -->
+    <div class="project-card">
+      <div class="project-num">01 — FEATURED</div>
+      <div class="project-title">Custom SMP System</div>
+      <p class="project-desc">
+        A fully custom PvP survival server concept designed from scratch — featuring unique shard mechanics, 
+        rare crafting systems, and a deep progression experience. Every system was balanced by hand 
+        to reward skill, exploration, and strategy.
+      </p>
+      <div class="project-tags">
+        <span class="tag">Skript</span>
+        <span class="tag">Plugin Dev</span>
+        <span class="tag">Game Design</span>
+        <span class="tag">PvP Balance</span>
+        <span class="tag">Crafting Systems</span>
+        <span class="tag">Server Config</span>
+      </div>
+      <p class="project-highlight">
+        "Designed complex sharding mechanics and rare item progression — built entirely solo."
+      </p>
+    </div>
+
+    <!-- PROJECT 2 -->
+    <div class="project-card">
+      <div class="project-num">02</div>
+      <div class="project-title">Advanced Crafting Engine</div>
+      <p class="project-desc">
+        Custom crafting logic with rare recipe trees and item rarity systems. 
+        Designed to feel rewarding and layered — not just a vanilla wrapper.
+      </p>
+      <div class="project-tags">
+        <span class="tag">Plugin Logic</span>
+        <span class="tag">Item Design</span>
+        <span class="tag">Balancing</span>
+      </div>
+    </div>
+
+    <!-- PROJECT 3 -->
+    <div class="project-card">
+      <div class="project-num">03</div>
+      <div class="project-title">Gameplay Mechanics Design</div>
+      <p class="project-desc">
+        Scripted and tuned multiple gameplay loops — from combat overhauls to 
+        custom event systems. Focused on player experience and difficulty scaling.
+      </p>
+      <div class="project-tags">
+        <span class="tag">Skript</span>
+        <span class="tag">Event Design</span>
+        <span class="tag">Combat Systems</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SMP OFFER BANNER -->
+  <div class="offer-banner reveal">
+    <div class="offer-title">🎮 Plugin Dev for SMP Access — <span>Open Offer</span></div>
+    <p class="offer-desc">
+      Running an SMP? I'll develop custom plugins, mechanics, or systems for your server. 
+      No payment needed — in exchange, I join the SMP directly with no application required. 
+      It's a win for your server, and a real project for me.
+    </p>
+    <div class="offer-terms">
+      <span class="offer-term">Custom plugins tailored to your server</span>
+      <span class="offer-term">No payment required</span>
+      <span class="offer-term">Application-free SMP access in return</span>
+      <span class="offer-term">Fast delivery</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-label reveal">Capabilities</div>
+  <h2 class="section-title reveal">What I bring<br>to the table.</h2>
+
+  <div class="skills-layout reveal">
+    <div>
+      <p class="skill-group-title">Technical Skills</p>
+      <div class="skill-list">
+        <div class="skill-item">
+          <span class="skill-name">Minecraft Plugin Dev</span>
+          <div class="skill-bar"><div class="skill-fill" style="width:90%"></div></div>
+        </div>
+        <div class="skill-item">
+          <span class="skill-name">Skript / Scripting Logic</span>
+          <div class="skill-bar"><div class="skill-fill" style="width:85%"></div></div>
+        </div>
+        <div class="skill-item">
+          <span class="skill-name">Game Mechanics Design</span>
+          <div class="skill-bar"><div class="skill-fill" style="width:88%"></div></div>
+        </div>
+        <div class="skill-item">
+          <span class="skill-name">Server Setup & Config</span>
+          <div class="skill-bar"><div class="skill-fill" style="width:82%"></div></div>
+        </div>
+        <div class="skill-item">
+          <span class="skill-name">Debugging & Problem Solving</span>
+          <div class="skill-bar"><div class="skill-fill" style="width:87%"></div></div>
+        </div>
+        <div class="skill-item">
+          <span class="skill-name">Programming Logic</span>
+          <div class="skill-bar"><div class="skill-fill" style="width:80%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="skill-group-title">Soft Skills</p>
+      <div class="soft-skills">
+        <span class="soft-tag">Creativity</span>
+        <span class="soft-tag">Persistence</span>
+        <span class="soft-tag">Adaptability</span>
+        <span class="soft-tag">Fast Learning</span>
+        <span class="soft-tag">Independent Work</span>
+        <span class="soft-tag">System Thinking</span>
+        <span class="soft-tag">Curiosity</span>
+        <span class="soft-tag">Driven</span>
+      </div>
+
+      <p class="skill-group-title" style="margin-top:40px;">Languages</p>
+      <div class="languages-row">
+        <div class="lang-chip">
+          <span class="lang-name">Arabic</span>
+          <span class="lang-level">Native</span>
+        </div>
+        <div class="lang-chip">
+          <span class="lang-name">English</span>
+          <span class="lang-level">Fluent</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-label reveal">About</div>
+  <h2 class="section-title reveal">The developer<br>behind the build.</h2>
+
+  <div class="about-layout reveal">
+    <div>
+      <div class="about-block">
+        <div class="about-label">Age</div>
+        <div class="about-value">15 Years Old</div>
+        <div class="about-sub">Building things most don't attempt until their 20s</div>
+      </div>
+      <div class="about-block">
+        <div class="about-label">Location</div>
+        <div class="about-value">United Kingdom</div>
+        <div class="about-sub">Open to remote work & global collaborations</div>
+      </div>
+      <div class="about-block">
+        <div class="about-label">Education</div>
+        <div class="about-value">High School + Self-Taught</div>
+        <div class="about-sub">YouTube, docs, and hands-on building</div>
+      </div>
+      <div class="about-block">
+        <div class="about-label">Outside Work</div>
+        <div class="about-value">Gaming · Building · Learning new tech</div>
+      </div>
+      <div class="about-block">
+        <div class="about-label">Values</div>
+        <div class="about-value">Creativity · Growth · Consistency · Innovation</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="story-card">
+        <p class="story-text">
+          It started from curiosity and games. Instead of just playing, I wanted to know how 
+          everything worked under the hood — so I started building it myself. 
+          Every plugin, every crafting system, every mechanic I've designed has taught me 
+          more than any classroom could.
+          <br><br>
+          I believe you don't need to be older or hold a degree to build real, complex things. 
+          You just need the drive to start — and the persistence to finish.
+          <br><br>
+          Currently leveling up my coding skills, expanding into more formal development, 
+          and looking for real projects with real people.
+        </p>
+      </div>
+
+      <div class="quote-block" style="margin-top:24px;">
+        <div class="quote-text">"I build things most people my age don't even try."</div>
+        <div class="quote-attr">— Axxryn</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CONTACT -->
+<section id="contact" style="max-width:100%; text-align:center; padding:100px 48px;">
+  <div class="section-label reveal" style="justify-content:center;">Get In Touch</div>
+  <h2 class="section-title reveal" style="margin-bottom:16px;">Let's build something.</h2>
+  <p class="contact-sub reveal">Have an SMP? Need a custom plugin? Want to collaborate? Reach out.</p>
+  <div class="contact-links reveal">
+    <a href="mailto:axxryn123@outlook.com" class="contact-link">
+      ✉ axxryn123@outlook.com
+    </a>
+    <a href="#" class="contact-link">
+      💬 Discord: axxryn
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Axx<span>ryn</span></div>
+  <div>Designed & built with intention — © 2025</div>
+  <div>UK · Full Stack Developer · Age 15</div>
+</footer>
+
+<script>
+  // CURSOR
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let mx = 0, my = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+    setTimeout(() => {
+      ring.style.left = mx + 'px';
+      ring.style.top = my + 'px';
+    }, 80);
+  });
+  document.querySelectorAll('a, button, .project-card').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.width = '20px';
+      cursor.style.height = '20px';
+      ring.style.width = '56px';
+      ring.style.height = '56px';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.width = '12px';
+      cursor.style.height = '12px';
+      ring.style.width = '36px';
+      ring.style.height = '36px';
+    });
+  });
+
+  // SCROLL REVEAL
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        // animate skill bars
+        e.target.querySelectorAll('.skill-fill').forEach(bar => {
+          bar.style.width = bar.style.width; // trigger
+        });
+      }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => observer.observe(el));
+
+  // SKILL BARS on scroll
+  const skillObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.querySelectorAll('.skill-fill').forEach(bar => {
+          const w = bar.style.width;
+          bar.style.width = '0';
+          requestAnimationFrame(() => {
+            setTimeout(() => { bar.style.width = w; }, 100);
+          });
+        });
+        skillObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('.skill-list').forEach(el => skillObserver.observe(el));
+</script>
+</body>
+</html>
